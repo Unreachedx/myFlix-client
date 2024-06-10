@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel src/index.html"
+    "start": "parcel",
+    "build": "parcel build"
   },
   "author": "Patrick Oliphant",
   "license": "ISC",

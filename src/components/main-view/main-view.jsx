@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MovieCard } from "../movie-card/MovieCard"; // Adjust the path if necessary
 import { MovieView } from "../movie-view/MovieView"; // Adjust the path if necessary
 
-export const MainView = () => {
+  export const MainView = () => {
   const [movies, setMovies] = useState([
     {
       id: 1,
