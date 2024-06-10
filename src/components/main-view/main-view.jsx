@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { MovieCard } from "../movie-card/MovieCard"; // Adjust the path if necessary
-import { MovieView } from "../movie-view/MovieView"; // Adjust the path if necessary
+import { MovieCard } from "../movie-card/movie-card"; // Adjust the path if necessary
+import { MovieView } from "../movie-view/movie-view"; // Adjust the path if necessary
 
   export const MainView = () => {
   const [movies, setMovies] = useState([
