@@ -1,5 +1,15 @@
-$color: steelblue;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-.my-flix {
-  color: $color;
+#root {
+  padding: 20px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
 }
