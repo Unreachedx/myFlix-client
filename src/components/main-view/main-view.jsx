@@ -2,29 +2,47 @@ import React, { useState, useEffect } from "react";
 import { MovieCard } from "../movie-card/movie-card"; // Adjust the path if necessary
 import { MovieView } from "../movie-view/movie-view"; // Adjust the path if necessary
 
-  export const MainView = () => {
+export const MainView = () => {
   const [movies, setMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok " + response.statusText);
+        }
+        return response.json();
+      })
       .then((data) => {
-        const moviesFromApi = data.docs.map((doc) => {
-          return {
-            id: doc.key,
-            title: doc.title,
-            author: doc.author_name?.[0],
-          };
-        });
+        console.log("Fetched data:", data); // Log the full response
 
-        setMovies(moviesFromApi);
+        if (Array.isArray(data)) {
+          // If data is an array of movies directly
+          const moviesFromApi = data.map((movie) => {
+            return {
+              id: movie._id, // Adjust according to your unique identifier field
+              title: movie.title,
+            };
+          });
+          setMovies(moviesFromApi);
+        } else {
+          throw new Error("Invalid data structure");
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+        setError(error);
       });
   }, []);
 
-  const [selectedMovie, setSelectedMovie] = useState(null);
-
   console.log("Rendering MainView with movies:", movies);
   console.log("Selected movie:", selectedMovie);
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   if (selectedMovie) {
     return (
