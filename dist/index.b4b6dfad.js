@@ -27257,7 +27257,7 @@ const MainView = ()=>{
                     return {
                         id: movie._id,
                         title: movie.title,
-                        ImagePath: movie.imageURL // make sure you add this according to the backend response
+                        ImagePath: movie.imagePath // make sure you add this according to the backend response
                     };
                 });
                 setMovies(moviesFromApi);

@@ -24,7 +24,7 @@ export const MainView = () => {
             return {
               id: movie._id, // Adjust according to your unique identifier field
               title: movie.title,
-              ImagePath: movie.imageURL // make sure you add this according to the backend response
+              ImagePath: movie.imagePath // make sure you add this according to the backend response
             };
           });
           setMovies(moviesFromApi);
