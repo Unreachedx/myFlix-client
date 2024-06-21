@@ -19,12 +19,15 @@ export const MainView = () => {
         console.log("Fetched data:", data); // Log the full response
 
         if (Array.isArray(data)) {
-          // If data is an array of movies directly
           const moviesFromApi = data.map((movie) => {
+            console.log("Mapping movie:", movie); // Log each movie
             return {
-              id: movie._id, // Adjust according to your unique identifier field
+              id: movie._id,
               title: movie.title,
-              ImagePath: movie.imagePath // make sure you add this according to the backend response
+              imagePath: movie.imagePath,
+              director: movie.director,
+              genre: movie.genre,
+              release_year: movie.release_year
             };
           });
           setMovies(moviesFromApi);

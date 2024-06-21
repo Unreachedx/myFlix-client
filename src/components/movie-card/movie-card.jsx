@@ -1,12 +1,13 @@
 import React from "react";
-import { PropTypes } from 'prop-types';
+import PropTypes from 'prop-types';
 
 export const MovieCard = ({ movie, onMovieClick }) => {
+  const defaultImage = "https://via.placeholder.com/200"; // Use a placeholder image
+  const directorName = movie.director && movie.director.name ? movie.director.name : "Unknown Director";
+
   return (
     <div
-      onClick={() => {
-        onMovieClick(movie);
-      }}
+      onClick={() => onMovieClick(movie)}
       style={{
         border: '1px solid #ddd',
         borderRadius: '5px',
@@ -16,18 +17,27 @@ export const MovieCard = ({ movie, onMovieClick }) => {
         textAlign: 'center'
       }}
     >
-      <img src={movie.image} alt={movie.title} style={{ width: '100%' }} />
+      <img src={movie.imagePath || defaultImage}
+       alt={movie.title} 
+       style={{ width: '100%' }} 
+       onError={(e) => {
+        e.target.src = defaultImage; // Set default image on error
+       }}
+       />
       <h3>{movie.title}</h3>
-      <p>Directed by {movie.director}</p>
+      <p>Directed by {directorName}</p>
     </div>
   );
 };
 
-// Here is where we define all the props constraints for the MovieCard
 MovieCard.propTypes = {
   movie: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    author: PropTypes.string,
+    imagePath: PropTypes.string,
+    director: PropTypes.shape({
+      name: PropTypes.string
+    }),
   }).isRequired,
   onMovieClick: PropTypes.func.isRequired,
 };
