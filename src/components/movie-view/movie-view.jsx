@@ -1,10 +1,23 @@
 import React from "react";
 
+// Placeholder image URL
+const placeholderImage = "https://via.placeholder.com/200";
+
 export const MovieView = ({ movie, onBackClick }) => {
+  // Determine the image source
+  const imageUrl = movie.imagePath || placeholderImage;
+
   return (
     <div>
       <div>
-        <img src={movie.image} alt={movie.title} />
+        <img
+          src={imageUrl}
+          alt={movie.title}
+          style={{ maxWidth: '100%', maxHeight: '400px', display: 'block', margin: '0 auto' }}
+          onError={(e) => {
+            e.target.src = placeholderImage; // Replace with placeholder image on error
+          }}
+        />
       </div>
       <div>
         <span>Title: </span>
@@ -12,7 +25,7 @@ export const MovieView = ({ movie, onBackClick }) => {
       </div>
       <div>
         <span>Director: </span>
-        <span>{movie.director}</span>
+        <span>{movie.director.name}</span>
       </div>
       <button onClick={onBackClick}>Back</button>
     </div>
