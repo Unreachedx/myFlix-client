@@ -7,37 +7,31 @@ export const LoginView = ({ onLoggedIn }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login
     const data = {
-      username: username,  // Make sure keys are in expected format
-      password: password,
+      Username: username,
+      Password: password
     };
 
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Login response: ", data);
-      if (data.user) {
-        onLoggedIn(data.user, data.token);
-      } else {
-        alert("No such user");
-      }
-    })
-    .catch((e) => {
-      console.error('Error:', e);
-      alert("Something went wrong");
+      .then((response) => response.json())      .then((data) => {
+        console.log("Login response: ", data);
+        if (data.user) {
+          onLoggedIn(data.user, data.token);
+        } else {
+          alert("No such user");
+        }
+      })
+      .catch((e) => {
+        alert("Something went wrong");
       });
-  };
+    };
 
   return (
     <form onSubmit={handleSubmit}>
