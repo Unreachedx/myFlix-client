@@ -6,22 +6,30 @@ export const LoginView = ({ onLoggedIn }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log("Login attempt", username, password); // Log attempt
 
-    // https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login
     const data = {
       Username: username,
-      Password: password
+      Password: password,
     };
 
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      credentials: "include", // Include credentials if needed
     })
-      .then((response) => response.json())      .then((data) => {
-        console.log("Login response: ", data);
+      .then((response) => {
+        console.log("Response received", response); // Log response
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Data received", data); // Log received data
         if (data.user) {
           onLoggedIn(data.user, data.token);
         } else {
@@ -29,9 +37,10 @@ export const LoginView = ({ onLoggedIn }) => {
         }
       })
       .catch((e) => {
-        alert("Something went wrong");
+        console.error("Error:", e);
+        alert("Something went wrong: " + e.message);
       });
-    };
+  };
 
   return (
     <form onSubmit={handleSubmit}>

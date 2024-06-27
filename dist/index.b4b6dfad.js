@@ -28490,7 +28490,7 @@ const LoginView = ({ onLoggedIn })=>{
     const [password, setPassword] = (0, _react.useState)("");
     const handleSubmit = (event)=>{
         event.preventDefault();
-        // https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login
+        console.log("Login attempt", username, password); // Log attempt
         const data = {
             Username: username,
             Password: password
@@ -28500,13 +28500,19 @@ const LoginView = ({ onLoggedIn })=>{
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(data)
-        }).then((response)=>response.json()).then((data)=>{
-            console.log("Login response: ", data);
+            body: JSON.stringify(data),
+            credentials: "include"
+        }).then((response)=>{
+            console.log("Response received", response); // Log response
+            if (!response.ok) throw new Error("Network response was not ok: " + response.statusText);
+            return response.json();
+        }).then((data)=>{
+            console.log("Data received", data); // Log received data
             if (data.user) onLoggedIn(data.user, data.token);
             else alert("No such user");
         }).catch((e)=>{
-            alert("Something went wrong");
+            console.error("Error:", e);
+            alert("Something went wrong: " + e.message);
         });
     };
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -28523,13 +28529,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 40,
+                        lineNumber: 49,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 38,
+                lineNumber: 47,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -28542,13 +28548,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 50,
+                        lineNumber: 59,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 48,
+                lineNumber: 57,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28556,13 +28562,13 @@ const LoginView = ({ onLoggedIn })=>{
                 children: "Login"
             }, void 0, false, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 57,
+                lineNumber: 66,
                 columnNumber: 7
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/components/login-view/login-view.jsx",
-        lineNumber: 37,
+        lineNumber: 46,
         columnNumber: 5
     }, undefined);
 };
