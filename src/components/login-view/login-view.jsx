@@ -7,42 +7,38 @@ export const LoginView = ({ onLoggedIn }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Login attempt", username, password); // Log attempt
+    console.log("Login attempt", username, password);
 
     const data = {
       Username: username,
       Password: password,
     };
 
-    fetch("http://localhost:8080/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      credentials: "include", // Include credentials if needed
-    })
-      .then((response) => {
-        console.log("Response received", response); // Log response
-        if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
+    try {
+      const response = await axios.post(
+        "https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Important for cookies/auth tokens
         }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Data received", data); // Log received data
-        if (data.user) {
-          onLoggedIn(data.user, data.token);
-        } else {
-          alert("No such user");
-        }
-      })
-      .catch((e) => {
-        console.error("Error:", e);
-        alert("Something went wrong: " + e.message);
-      });
-  };
+      );
 
+      console.log("Response received", response);
+      const result = response.data;
+      if (result.user && result.token) {
+        localStorage.setItem('token', result.token); // Store the token
+        onLoggedIn(result.user, result.token);
+      } else {
+        alert("No such user");
+      }
+    } catch (e) {
+      console.error("Error:", e);
+      alert("Something went wrong: " + e.message);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>

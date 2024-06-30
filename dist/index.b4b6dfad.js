@@ -28495,30 +28495,28 @@ const LoginView = ({ onLoggedIn })=>{
     const [password, setPassword] = (0, _react.useState)("");
     const handleSubmit = async (event)=>{
         event.preventDefault();
-        console.log("Login attempt", username, password); // Log attempt
+        console.log("Login attempt", username, password);
         const data = {
             Username: username,
             Password: password
         };
-        fetch("http://localhost:8080/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data),
-            credentials: "include"
-        }).then((response)=>{
-            console.log("Response received", response); // Log response
-            if (!response.ok) throw new Error("Network response was not ok: " + response.statusText);
-            return response.json();
-        }).then((data)=>{
-            console.log("Data received", data); // Log received data
-            if (data.user) onLoggedIn(data.user, data.token);
-            else alert("No such user");
-        }).catch((e)=>{
+        try {
+            const response = await (0, _axiosDefault.default).post("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", data, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            });
+            console.log("Response received", response);
+            const result = response.data;
+            if (result.user && result.token) {
+                localStorage.setItem("token", result.token); // Store the token
+                onLoggedIn(result.user, result.token);
+            } else alert("No such user");
+        } catch (e) {
             console.error("Error:", e);
             alert("Something went wrong: " + e.message);
-        });
+        }
     };
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
         onSubmit: handleSubmit,
@@ -28534,13 +28532,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 51,
+                        lineNumber: 47,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 49,
+                lineNumber: 45,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -28553,13 +28551,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 61,
+                        lineNumber: 57,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 59,
+                lineNumber: 55,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28567,13 +28565,13 @@ const LoginView = ({ onLoggedIn })=>{
                 children: "Login"
             }, void 0, false, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 68,
+                lineNumber: 64,
                 columnNumber: 7
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/components/login-view/login-view.jsx",
-        lineNumber: 48,
+        lineNumber: 44,
         columnNumber: 5
     }, undefined);
 };
