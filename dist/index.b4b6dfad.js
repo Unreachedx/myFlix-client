@@ -28500,39 +28500,25 @@ const LoginView = ({ onLoggedIn })=>{
             Username: username,
             Password: password
         };
-        /*     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      credentials: "include", // Include credentials if needed
-    })
-      .then((response) => {
-        console.log("Response received", response); // Log response
-        if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Data received", data); // Log received data
-        if (data.user) {
-          onLoggedIn(data.user, data.token);
-        } else {
-          alert("No such user");
-        }
-      })
-      .catch((e) => {
-        console.error("Error:", e);
-        alert("Something went wrong: " + e.message);
-      });
-  }; */ try {
-            const result = await (0, _axiosDefault.default).post("http://localhost:8080/", data);
-            console.log(result.data);
-        } catch (error) {
-            console.log(error, "login error");
-        }
+        fetch("http://localhost:8080/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data),
+            credentials: "include"
+        }).then((response)=>{
+            console.log("Response received", response); // Log response
+            if (!response.ok) throw new Error("Network response was not ok: " + response.statusText);
+            return response.json();
+        }).then((data)=>{
+            console.log("Data received", data); // Log received data
+            if (data.user) onLoggedIn(data.user, data.token);
+            else alert("No such user");
+        }).catch((e)=>{
+            console.error("Error:", e);
+            alert("Something went wrong: " + e.message);
+        });
     };
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
         onSubmit: handleSubmit,
@@ -28548,13 +28534,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 57,
+                        lineNumber: 51,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 55,
+                lineNumber: 49,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -28567,13 +28553,13 @@ const LoginView = ({ onLoggedIn })=>{
                         required: true
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 67,
+                        lineNumber: 61,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 65,
+                lineNumber: 59,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28581,13 +28567,13 @@ const LoginView = ({ onLoggedIn })=>{
                 children: "Login"
             }, void 0, false, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 74,
+                lineNumber: 68,
                 columnNumber: 7
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/components/login-view/login-view.jsx",
-        lineNumber: 54,
+        lineNumber: 48,
         columnNumber: 5
     }, undefined);
 };

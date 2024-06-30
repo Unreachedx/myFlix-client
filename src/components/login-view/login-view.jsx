@@ -14,7 +14,7 @@ export const LoginView = ({ onLoggedIn }) => {
       Password: password,
     };
 
-/*     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
+    fetch("http://localhost:8080/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,13 +41,7 @@ export const LoginView = ({ onLoggedIn }) => {
         console.error("Error:", e);
         alert("Something went wrong: " + e.message);
       });
-  }; */
-  try {
-    const result = await axios.post("http://localhost:8080/", data)
-    console.log(result.data)
-  } catch (error) {
-    console.log(error, "login error")
-  }}
+  };
 
 
   return (
