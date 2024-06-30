@@ -11,12 +11,14 @@
   "author": "Patrick Oliphant",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.2",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "^2.12.0",
+    "buffer": "^6.0.3",
     "parcel": "^2.12.0",
     "process": "^0.11.10"
   }

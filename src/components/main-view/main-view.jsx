@@ -9,11 +9,12 @@ export const MainView = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const authToken = localStorage.getItem("token")
+  const [token, setToken] = useState(authToken || null );
 
   useEffect(() => {
     if (!token) return;
-
+    console.log(token, "This is what token where loggin")
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -46,12 +47,13 @@ export const MainView = () => {
       });
   }, [token]);
 
-  if (!user) {
+  if (!token) {
     return (
       <>
         <LoginView
           onLoggedIn={(user, token) => {
             setUser(user);
+            localStorage.setItem("token", token)
             setToken(token);
           }}
         />

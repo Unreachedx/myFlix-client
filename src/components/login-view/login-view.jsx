@@ -1,10 +1,11 @@
 import { useState } from "react";
+import axios from "axios";
 
 export const LoginView = ({ onLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("Login attempt", username, password); // Log attempt
 
@@ -13,7 +14,7 @@ export const LoginView = ({ onLoggedIn }) => {
       Password: password,
     };
 
-    fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
+/*     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +41,14 @@ export const LoginView = ({ onLoggedIn }) => {
         console.error("Error:", e);
         alert("Something went wrong: " + e.message);
       });
-  };
+  }; */
+  try {
+    const result = await axios.post("http://localhost:8080/", data)
+    console.log(result.data)
+  } catch (error) {
+    console.log(error, "login error")
+  }}
+
 
   return (
     <form onSubmit={handleSubmit}>
