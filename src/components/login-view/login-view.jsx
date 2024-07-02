@@ -8,31 +8,35 @@ export const LoginView = ({ onLoggedIn }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    const payload = {
+      username: username,
+      password: password
+    };
+
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ username, password }),
-      credentials: 'include' // If you need to send cookies or other credentials
+      body: JSON.stringify(payload),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.token) {
-          onLoggedIn(data.user, data.token);
-        } else {
-          throw new Error("Invalid response data");
-        }
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-        setError(error);
-      });
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(error => {
+          throw new Error(`Server responded with status ${response.status}: ${error.message}`);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Login successful:', data);
+      // Optionally, call a callback function like `onLoggedIn(data)` if needed
+      // Example: onLoggedIn(data);
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+      setError(error.message); // Update state with error message
+    });
   };
 
   return (
@@ -46,7 +50,7 @@ export const LoginView = ({ onLoggedIn }) => {
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
       <button type="submit">Login</button>
-      {error && <div>Error: {error.message}</div>}
+      {error && <div>Error: {error}</div>}
     </form>
   );
 };

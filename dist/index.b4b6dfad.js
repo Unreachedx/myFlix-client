@@ -28495,25 +28495,28 @@ const LoginView = ({ onLoggedIn })=>{
     const [error, setError] = (0, _react.useState)(null);
     const handleSubmit = (event)=>{
         event.preventDefault();
+        const payload = {
+            username: username,
+            password: password
+        };
         fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                username,
-                password
-            }),
-            credentials: "include" // If you need to send cookies or other credentials
+            body: JSON.stringify(payload)
         }).then((response)=>{
-            if (!response.ok) throw new Error("Network response was not ok " + response.statusText);
+            if (!response.ok) return response.json().then((error)=>{
+                throw new Error(`Server responded with status ${response.status}: ${error.message}`);
+            });
             return response.json();
         }).then((data)=>{
-            if (data.token) onLoggedIn(data.user, data.token);
-            else throw new Error("Invalid response data");
+            console.log("Login successful:", data);
+        // Optionally, call a callback function like `onLoggedIn(data)` if needed
+        // Example: onLoggedIn(data);
         }).catch((error)=>{
             console.error("There was a problem with the fetch operation:", error);
-            setError(error);
+            setError(error.message); // Update state with error message
         });
     };
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -28528,13 +28531,13 @@ const LoginView = ({ onLoggedIn })=>{
                         onChange: (e)=>setUsername(e.target.value)
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 42,
+                        lineNumber: 46,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 40,
+                lineNumber: 44,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -28546,13 +28549,13 @@ const LoginView = ({ onLoggedIn })=>{
                         onChange: (e)=>setPassword(e.target.value)
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 46,
+                        lineNumber: 50,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 44,
+                lineNumber: 48,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28560,23 +28563,23 @@ const LoginView = ({ onLoggedIn })=>{
                 children: "Login"
             }, void 0, false, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 48,
+                lineNumber: 52,
                 columnNumber: 7
             }, undefined),
             error && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
                 children: [
                     "Error: ",
-                    error.message
+                    error
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 49,
+                lineNumber: 53,
                 columnNumber: 17
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/components/login-view/login-view.jsx",
-        lineNumber: 39,
+        lineNumber: 43,
         columnNumber: 5
     }, undefined);
 };
