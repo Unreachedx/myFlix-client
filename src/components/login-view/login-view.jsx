@@ -9,35 +9,28 @@ export const LoginView = ({ onLoggedIn }) => {
     event.preventDefault();
 
     const payload = {
-      username: username,
-      password: password
+      Username: username,
+      Password: password
     };
 
     fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload),
-    })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(error => {
-          throw new Error(`Server responded with status ${response.status}: ${error.message}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Login successful:', data);
-      // Optionally, call a callback function like `onLoggedIn(data)` if needed
-      // Example: onLoggedIn(data);
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-      setError(error.message); // Update state with error message
-    });
-  };
+     })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Login successful:', data);
+        const { user, token } = data;
+        onLoggedIn(user, token); // Ensure this call remains to set user token
+      })
+      .catch(error => {
+        console.error('Fetch operation failed:', error);
+        setError(error.message); // Update state with error message
+      });
+    };
 
   return (
     <form onSubmit={handleSubmit}>

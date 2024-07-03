@@ -27252,34 +27252,40 @@ const MainView = ()=>{
     const [token, setToken] = (0, _react.useState)(authToken || null);
     (0, _react.useEffect)(()=>{
         if (!token) return;
-        console.log(token, "This is what token where loggin");
-        fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
-            headers: {
-                Authorization: `Bearer ${token}`
+        const fetchMovies = async ()=>{
+            try {
+                const response = await fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) throw new Error("Network response was not ok " + response.statusText);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    const moviesFromApi = data.map((movie)=>({
+                            id: movie._id,
+                            title: movie.title,
+                            imagePath: movie.imagePath,
+                            director: movie.director,
+                            genre: movie.genre,
+                            release_year: movie.release_year
+                        }));
+                    setMovies(moviesFromApi);
+                } else throw new Error("Invalid data structure");
+            } catch (error) {
+                console.error("There was a problem with the fetch operation:", error);
+                setError(error);
             }
-        }).then((response)=>{
-            if (!response.ok) throw new Error("Network response was not ok " + response.statusText);
-            return response.json();
-        }).then((data)=>{
-            console.log("Fetched data:", data);
-            if (Array.isArray(data)) {
-                const moviesFromApi = data.map((movie)=>({
-                        id: movie._id,
-                        title: movie.title,
-                        imagePath: movie.imagePath,
-                        director: movie.director,
-                        genre: movie.genre,
-                        release_year: movie.release_year
-                    }));
-                setMovies(moviesFromApi);
-            } else throw new Error("Invalid data structure");
-        }).catch((error)=>{
-            console.error("There was a problem with the fetch operation:", error);
-            setError(error);
-        });
+        };
+        fetchMovies();
     }, [
         token
     ]);
+    const handleLogout = ()=>{
+        localStorage.removeItem("token");
+        setToken(null);
+        setUser(null);
+    };
     if (!token) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _loginView.LoginView), {
@@ -27290,13 +27296,13 @@ const MainView = ()=>{
                 }
             }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 53,
+                lineNumber: 61,
                 columnNumber: 9
             }, undefined),
             "or",
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _signupView.SignupView), {}, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 61,
+                lineNumber: 69,
                 columnNumber: 9
             }, undefined)
         ]
@@ -27310,7 +27316,7 @@ const MainView = ()=>{
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 70,
+        lineNumber: 78,
         columnNumber: 12
     }, undefined);
     if (selectedMovie) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieView.MovieView), {
@@ -27318,36 +27324,53 @@ const MainView = ()=>{
         onBackClick: ()=>setSelectedMovie(null)
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 75,
+        lineNumber: 83,
         columnNumber: 7
     }, undefined);
     if (movies.length === 0) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
         children: "The list is empty!"
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 80,
+        lineNumber: 88,
         columnNumber: 12
     }, undefined);
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-        style: {
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px"
-        },
-        children: movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
-                movie: movie,
-                onMovieClick: (newSelectedMovie)=>{
-                    console.log("Movie clicked:", newSelectedMovie);
-                    setSelectedMovie(newSelectedMovie);
-                }
-            }, movie.id, false, {
+        children: [
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                onClick: handleLogout,
+                children: "Logout"
+            }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 86,
-                columnNumber: 9
-            }, undefined))
-    }, void 0, false, {
+                lineNumber: 93,
+                columnNumber: 7
+            }, undefined),
+            " ",
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                style: {
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "10px"
+                },
+                children: movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
+                        movie: movie,
+                        onMovieClick: (newSelectedMovie)=>{
+                            console.log("Movie clicked:", newSelectedMovie);
+                            setSelectedMovie(newSelectedMovie);
+                        }
+                    }, movie.id, false, {
+                        fileName: "src/components/main-view/main-view.jsx",
+                        lineNumber: 96,
+                        columnNumber: 11
+                    }, undefined))
+            }, void 0, false, {
+                fileName: "src/components/main-view/main-view.jsx",
+                lineNumber: 94,
+                columnNumber: 7
+            }, undefined)
+        ]
+    }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 84,
+        lineNumber: 92,
         columnNumber: 5
     }, undefined);
 };
@@ -28496,8 +28519,8 @@ const LoginView = ({ onLoggedIn })=>{
     const handleSubmit = (event)=>{
         event.preventDefault();
         const payload = {
-            username: username,
-            password: password
+            Username: username,
+            Password: password
         };
         fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/login", {
             method: "POST",
@@ -28505,17 +28528,12 @@ const LoginView = ({ onLoggedIn })=>{
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(payload)
-        }).then((response)=>{
-            if (!response.ok) return response.json().then((error)=>{
-                throw new Error(`Server responded with status ${response.status}: ${error.message}`);
-            });
-            return response.json();
-        }).then((data)=>{
+        }).then((response)=>response.json()).then((data)=>{
             console.log("Login successful:", data);
-        // Optionally, call a callback function like `onLoggedIn(data)` if needed
-        // Example: onLoggedIn(data);
+            const { user, token } = data;
+            onLoggedIn(user, token); // Ensure this call remains to set user token
         }).catch((error)=>{
-            console.error("There was a problem with the fetch operation:", error);
+            console.error("Fetch operation failed:", error);
             setError(error.message); // Update state with error message
         });
     };
@@ -28531,13 +28549,13 @@ const LoginView = ({ onLoggedIn })=>{
                         onChange: (e)=>setUsername(e.target.value)
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 46,
+                        lineNumber: 39,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 44,
+                lineNumber: 37,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -28549,13 +28567,13 @@ const LoginView = ({ onLoggedIn })=>{
                         onChange: (e)=>setPassword(e.target.value)
                     }, void 0, false, {
                         fileName: "src/components/login-view/login-view.jsx",
-                        lineNumber: 50,
+                        lineNumber: 43,
                         columnNumber: 9
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 48,
+                lineNumber: 41,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28563,7 +28581,7 @@ const LoginView = ({ onLoggedIn })=>{
                 children: "Login"
             }, void 0, false, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 52,
+                lineNumber: 45,
                 columnNumber: 7
             }, undefined),
             error && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28573,13 +28591,13 @@ const LoginView = ({ onLoggedIn })=>{
                 ]
             }, void 0, true, {
                 fileName: "src/components/login-view/login-view.jsx",
-                lineNumber: 53,
+                lineNumber: 46,
                 columnNumber: 17
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/components/login-view/login-view.jsx",
-        lineNumber: 43,
+        lineNumber: 36,
         columnNumber: 5
     }, undefined);
 };

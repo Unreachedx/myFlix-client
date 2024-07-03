@@ -9,23 +9,23 @@ export const MainView = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const authToken = localStorage.getItem("token")
-  const [token, setToken] = useState(authToken || null );
+  const authToken = localStorage.getItem("token");
+  const [token, setToken] = useState(authToken || null);
 
   useEffect(() => {
     if (!token) return;
-    console.log(token, "This is what token where loggin")
-    fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((response) => {
+
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
         if (!response.ok) {
           throw new Error("Network response was not ok " + response.statusText);
         }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Fetched data:", data);
+
+        const data = await response.json();
 
         if (Array.isArray(data)) {
           const moviesFromApi = data.map((movie) => ({
@@ -40,12 +40,20 @@ export const MainView = () => {
         } else {
           throw new Error("Invalid data structure");
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         setError(error);
-      });
+      }
+    };
+
+    fetchMovies();
   }, [token]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setUser(null);
+  };
 
   if (!token) {
     return (
@@ -53,7 +61,7 @@ export const MainView = () => {
         <LoginView
           onLoggedIn={(user, token) => {
             setUser(user);
-            localStorage.setItem("token", token)
+            localStorage.setItem("token", token);
             setToken(token);
           }}
         />
@@ -81,17 +89,20 @@ export const MainView = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-      {movies.map((movie) => (
-        <MovieCard
-          key={movie.id}
-          movie={movie}
-          onMovieClick={(newSelectedMovie) => {
-            console.log("Movie clicked:", newSelectedMovie);
-            setSelectedMovie(newSelectedMovie);
-          }}
-        />
-      ))}
+    <div>
+      <button onClick={handleLogout}>Logout</button> {/* Logout Button */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+        {movies.map((movie) => (
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            onMovieClick={(newSelectedMovie) => {
+              console.log("Movie clicked:", newSelectedMovie);
+              setSelectedMovie(newSelectedMovie);
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 };
