@@ -35,7 +35,7 @@ export const SignupView = () => {
 
   return (
     <Container className="d-flex align-items-center justify-content-center">
-      <Row>
+      <Row className="mt-5">
         <Col>
           <CardGroup>
             <Card>
@@ -83,7 +83,7 @@ export const SignupView = () => {
                     required
                   />
                 </Form.Group>
-                <Button variant="primary" type="submit">
+                <Button variant="primary" type="submit" className="mt-2">
                   Submit
                 </Button>
               </Form>

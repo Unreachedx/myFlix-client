@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { MovieCard } from "../movie-card/movie-card"; // Adjust the path if necessary
-import { MovieView } from "../movie-view/movie-view"; // Adjust the path if necessary
+import { MovieCard } from "../movie-card/movie-card";
+import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { Container, Row, Col, Button } from "react-bootstrap";
+
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
@@ -65,7 +67,6 @@ export const MainView = () => {
             setToken(token);
           }}
         />
-        or
         <SignupView />
       </>
     );
@@ -89,20 +90,23 @@ export const MainView = () => {
   }
 
   return (
-    <div>
-      <button onClick={handleLogout}>Logout</button> {/* Logout Button */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+    <Container>
+      <Row>
         {movies.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            onMovieClick={(newSelectedMovie) => {
-              console.log("Movie clicked:", newSelectedMovie);
-              setSelectedMovie(newSelectedMovie);
-            }}
-          />
+          <Col xs={12} sm={6} md={4} lg={3} key={movie.id}>
+            <MovieCard
+              movie={movie}
+              onMovieClick={(newSelectedMovie) => {
+                console.log("Movie clicked:", newSelectedMovie);
+                setSelectedMovie(newSelectedMovie);
+              }}
+            />
+          </Col>
         ))}
+      <div className="d-flex justify-content-center mt-3">
+        <Button className="w-auto" onClick={handleLogout}>Logout</Button>
       </div>
-    </div>
+      </Row>
+    </Container>
   );
 };

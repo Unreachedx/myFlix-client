@@ -50,7 +50,7 @@ export const LoginView = ({ onLoggedIn }) => {
         <Form.Label>Password:</Form.Label>
         <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter a Password" />
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" className="mt-2">
         Login      
       {error && <div>Error: {error}</div>}
         </Button>
