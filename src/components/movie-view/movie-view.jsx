@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Container, Row, Col, Button, Card, CardGroup } from "react-bootstrap";
+
 // Placeholder image URL
 const placeholderImage = "https://via.placeholder.com/200";
 
