@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-export const ProfileView = ({ movies }) => {
+export const ProfileView = ({ username, token, movies }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,18 +16,19 @@ export const ProfileView = ({ movies }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users");
+        const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${username}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const users = await response.json();
-        const loggedInUser = users.find(u => u.username === 'currentUsername'); // Replace 'currentUsername' with the actual username of the logged-in user
-        setUser(loggedInUser);
+        const userData = await response.json();
+        setUser(userData);
         setFormData({
-          username: loggedInUser.username,
+          username: userData.Username,
           password: '',
-          email: loggedInUser.email,
-          dob: loggedInUser.dob
+          email: userData.Email,
+          dob: userData.Birthday
         });
       } catch (error) {
         setError(error);
@@ -37,26 +38,27 @@ export const ProfileView = ({ movies }) => {
     };
 
     fetchUser();
-  }, []);
+  }, [username, token]);
 
   const handleToggleFavorite = async (movieId) => {
     try {
-      const updatedFavorites = user.FavoriteMovies.includes(movieId)
-        ? user.FavoriteMovies.filter(id => id !== movieId)
-        : [...user.FavoriteMovies, movieId];
-      // Update user's favorite movies in the backend
-      const response = await fetch(`/users/${user._id}`, {
-        method: 'PUT',
+      const isFavorite = user.FavoriteMovies.includes(movieId);
+      const method = isFavorite ? 'DELETE' : 'POST';
+      const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${username}/favorites/${movieId}`, {
+        method,
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ FavoriteMovies: updatedFavorites })
+        }
       });
       if (!response.ok) {
         throw new Error('Failed to update favorite movies');
       }
-      const updatedUser = await response.json();
-      setUser(updatedUser);
+      // Update local user state
+      const updatedFavorites = isFavorite
+        ? user.FavoriteMovies.filter(id => id !== movieId)
+        : [...user.FavoriteMovies, movieId];
+      setUser({ ...user, FavoriteMovies: updatedFavorites });
     } catch (error) {
       setError(error);
     }
@@ -72,9 +74,10 @@ export const ProfileView = ({ movies }) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/users/${user._id}`, {
+      const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${username}`, {
         method: 'PUT',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
@@ -92,14 +95,15 @@ export const ProfileView = ({ movies }) => {
 
   const handleDeregister = async () => {
     try {
-      const response = await fetch(`/users/${user._id}`, {
-        method: 'DELETE'
+      const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${username}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) {
         throw new Error('Failed to deregister user');
       }
       alert('User deregistered successfully');
-      history.push('/login'); // Redirect to login or home page after deregistration
+      navigate('/login'); // Redirect to login or home page after deregistration
     } catch (error) {
       setError(error);
     }

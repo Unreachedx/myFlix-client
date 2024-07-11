@@ -4,16 +4,16 @@ import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
 import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { BrowserRouter, Routes, Route, Navigate, useParams} from "react-router-dom";
+import { Container, Row, Col } from "react-bootstrap";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ProfileView } from "../Profile-view/profile-view";
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const authToken = localStorage.getItem("token");
   const [token, setToken] = useState(authToken || null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -29,7 +29,6 @@ export const MainView = () => {
 
         if (!response.ok) {
           if (response.status === 401) {
-            // Handle unauthorized error (e.g., token expired)
             localStorage.removeItem("token");
             setToken(null);
             setUser(null);
@@ -47,7 +46,6 @@ export const MainView = () => {
             director: movie.director,
             genre: movie.genre,
             release_year: movie.release_year,
-            // Add more properties as needed
           }));
           setMovies(moviesFromApi);
         } else {
@@ -62,10 +60,27 @@ export const MainView = () => {
     fetchMovies();
   }, [token]);
 
-  const handleToggleFavorite = (movieId) => {
-    console.log(`Toggle favorite for movie ${movieId}`);
-    // Implement favorite toggle logic here
-    // Update the movies state with the updated favorite status
+  const handleToggleFavorite = async (movieId) => {
+    try {
+      const isFavorite = user.FavoriteMovies.includes(movieId);
+      const method = isFavorite ? 'DELETE' : 'POST';
+      const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${user.Username}/favorites/${movieId}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update favorite movies');
+      }
+      const updatedFavorites = isFavorite
+        ? user.FavoriteMovies.filter(id => id !== movieId)
+        : [...user.FavoriteMovies, movieId];
+      setUser({ ...user, FavoriteMovies: updatedFavorites });
+    } catch (error) {
+      setError(error);
+    }
   };
 
   const handleLogout = () => {
@@ -74,18 +89,18 @@ export const MainView = () => {
     setUser(null);
   };
 
+  const handleLoggedIn = (user, token) => {
+    setUser(user);
+    localStorage.setItem("token", token);
+    setToken(token);
+  };
+
   if (!token) {
     return (
       <Container>
         <Row className="justify-content-md-center">
           <Col md={5}>
-            <LoginView
-              onLoggedIn={(user, token) => {
-                setUser(user);
-                localStorage.setItem("token", token);
-                setToken(token);
-              }}
-            />
+            <LoginView onLoggedIn={handleLoggedIn} />
           </Col>
           <Col md={5}>
             <SignupView />
@@ -131,7 +146,7 @@ export const MainView = () => {
                     <Navigate to="/" />
                   ) : (
                     <Col md={5}>
-                      <LoginView onLoggedIn={(user, token) => setUser(user)} />
+                      <LoginView onLoggedIn={handleLoggedIn} />
                     </Col>
                   )}
                 </>
@@ -143,8 +158,14 @@ export const MainView = () => {
             />
             <Route
               path="/profile"
-              element={<ProfileView user={user} />}
-            />  
+              element={
+                user ? (
+                  <ProfileView username={user.Username} token={token} movies={movies} />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
             <Route
               path="/"
               element={
@@ -157,8 +178,8 @@ export const MainView = () => {
                         <Col className="mb-4" key={movie.id} md={3}>
                           <MovieCard
                             movie={movie}
-                            onToggleFavorite={handleToggleFavorite} // Pass the toggle function down
-                            isFavorite={false} // Implement logic to determine if it's a favorite
+                            onToggleFavorite={handleToggleFavorite}
+                            isFavorite={user.FavoriteMovies.includes(movie.id)}
                           />
                         </Col>
                       ))}
