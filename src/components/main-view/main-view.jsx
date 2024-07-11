@@ -5,7 +5,8 @@ import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
 import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams} from "react-router-dom";
+import { ProfileView } from "../Profile-view/profile-view";
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
@@ -27,6 +28,12 @@ export const MainView = () => {
         );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            // Handle unauthorized error (e.g., token expired)
+            localStorage.removeItem("token");
+            setToken(null);
+            setUser(null);
+          }
           throw new Error("Network response was not ok " + response.statusText);
         }
 
@@ -40,6 +47,7 @@ export const MainView = () => {
             director: movie.director,
             genre: movie.genre,
             release_year: movie.release_year,
+            // Add more properties as needed
           }));
           setMovies(moviesFromApi);
         } else {
@@ -53,6 +61,12 @@ export const MainView = () => {
 
     fetchMovies();
   }, [token]);
+
+  const handleToggleFavorite = (movieId) => {
+    console.log(`Toggle favorite for movie ${movieId}`);
+    // Implement favorite toggle logic here
+    // Update the movies state with the updated favorite status
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -81,8 +95,6 @@ export const MainView = () => {
     );
   }
 
-  console.log("Rendering MainView with movies:", movies);
-
   if (error) {
     return <div>Error: {error.message}</div>;
   }
@@ -93,10 +105,7 @@ export const MainView = () => {
 
   return (
     <BrowserRouter>
-      <NavigationBar
-        user={user}
-        onLoggedOut={handleLogout}
-      />
+      <NavigationBar user={user} onLoggedOut={handleLogout} />
       <Container>
         <Row className="justify-content-md-center">
           <Routes>
@@ -130,10 +139,12 @@ export const MainView = () => {
             />
             <Route
               path="/movie/:movieId"
-              element={
-                <MovieDetailsWrapper movies={movies} user={user} />
-              }
+              element={<MovieDetailsWrapper movies={movies} user={user} />}
             />
+            <Route
+              path="/profile"
+              element={<ProfileView user={user} />}
+            />  
             <Route
               path="/"
               element={
@@ -144,7 +155,11 @@ export const MainView = () => {
                     <Row>
                       {movies.map((movie) => (
                         <Col className="mb-4" key={movie.id} md={3}>
-                          <MovieCard movie={movie} />
+                          <MovieCard
+                            movie={movie}
+                            onToggleFavorite={handleToggleFavorite} // Pass the toggle function down
+                            isFavorite={false} // Implement logic to determine if it's a favorite
+                          />
                         </Col>
                       ))}
                     </Row>
