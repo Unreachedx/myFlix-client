@@ -3,12 +3,12 @@ import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
 import { Container, Row, Col, Button } from "react-bootstrap";
-
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const authToken = localStorage.getItem("token");
@@ -19,9 +19,12 @@ export const MainView = () => {
 
     const fetchMovies = async () => {
       try {
-        const response = await fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await fetch(
+          "https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Network response was not ok " + response.statusText);
@@ -59,30 +62,29 @@ export const MainView = () => {
 
   if (!token) {
     return (
-      <>
-        <LoginView
-          onLoggedIn={(user, token) => {
-            setUser(user);
-            localStorage.setItem("token", token);
-            setToken(token);
-          }}
-        />
-        <SignupView />
-      </>
+      <Container>
+        <Row className="justify-content-md-center">
+          <Col md={5}>
+            <LoginView
+              onLoggedIn={(user, token) => {
+                setUser(user);
+                localStorage.setItem("token", token);
+                setToken(token);
+              }}
+            />
+          </Col>
+          <Col md={5}>
+            <SignupView />
+          </Col>
+        </Row>
+      </Container>
     );
   }
 
   console.log("Rendering MainView with movies:", movies);
-  console.log("Selected movie:", selectedMovie);
 
   if (error) {
     return <div>Error: {error.message}</div>;
-  }
-
-  if (selectedMovie) {
-    return (
-      <MovieView movie={selectedMovie} onBackClick={() => setSelectedMovie(null)} />
-    );
   }
 
   if (movies.length === 0) {
@@ -90,23 +92,84 @@ export const MainView = () => {
   }
 
   return (
-    <Container>
-      <Row>
-        {movies.map((movie) => (
-          <Col xs={12} sm={6} md={4} lg={3} key={movie.id}>
-            <MovieCard
-              movie={movie}
-              onMovieClick={(newSelectedMovie) => {
-                console.log("Movie clicked:", newSelectedMovie);
-                setSelectedMovie(newSelectedMovie);
-              }}
+    <BrowserRouter>
+      <NavigationBar
+        user={user}
+        onLoggedOut={handleLogout}
+      />
+      <Container>
+        <Row className="justify-content-md-center">
+          <Routes>
+            <Route
+              path="/signup"
+              element={
+                <>
+                  {user ? (
+                    <Navigate to="/" />
+                  ) : (
+                    <Col md={5}>
+                      <SignupView />
+                    </Col>
+                  )}
+                </>
+              }
             />
-          </Col>
-        ))}
-      <div className="d-flex justify-content-center mt-3">
-        <Button className="w-auto" onClick={handleLogout}>Logout</Button>
-      </div>
-      </Row>
-    </Container>
+            <Route
+              path="/login"
+              element={
+                <>
+                  {user ? (
+                    <Navigate to="/" />
+                  ) : (
+                    <Col md={5}>
+                      <LoginView onLoggedIn={(user, token) => setUser(user)} />
+                    </Col>
+                  )}
+                </>
+              }
+            />
+            <Route
+              path="/movie/:movieId"
+              element={
+                <MovieDetailsWrapper movies={movies} user={user} />
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <>
+                  {!user ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <Row>
+                      {movies.map((movie) => (
+                        <Col className="mb-4" key={movie.id} md={3}>
+                          <MovieCard movie={movie} />
+                        </Col>
+                      ))}
+                    </Row>
+                  )}
+                </>
+              }
+            />
+          </Routes>
+        </Row>
+      </Container>
+    </BrowserRouter>
   );
+};
+
+const MovieDetailsWrapper = ({ movies, user }) => {
+  const { movieId } = useParams();
+  const movie = movies.find((m) => m.id === movieId);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!movie) {
+    return <div>Movie not found!</div>;
+  }
+
+  return <MovieView movie={movie} />;
 };

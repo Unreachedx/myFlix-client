@@ -1,3 +1,5 @@
+import { useParams } from "react-router";
+import { Link } from "react-router-dom";
 import React from "react";
 
 import { Container, Row, Col, Button, Card, CardGroup } from "react-bootstrap";
@@ -5,7 +7,12 @@ import { Container, Row, Col, Button, Card, CardGroup } from "react-bootstrap";
 // Placeholder image URL
 const placeholderImage = "https://via.placeholder.com/200";
 
-export const MovieView = ({ movie, onBackClick }) => {
+export const MovieView = ({ movie }) => {
+  if (!movie) {
+    return <div>Loading...</div>;
+  }
+
+
   // Determine the image source
   const imageUrl = movie.imagePath || placeholderImage;
 
@@ -29,7 +36,9 @@ export const MovieView = ({ movie, onBackClick }) => {
         <span>Director: </span>
         <span>{movie.director.name}</span>
       </div>
-      <button onClick={onBackClick}>Back</button>
+      <Link to={`/`}>
+        <button className="back-button">Back</button>
+      </Link>
     </div>
   );
 };
