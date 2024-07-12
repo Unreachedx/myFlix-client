@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
+import { MovieCard } from './../movie-card/movie-card';
 
-export const ProfileView = ({ username, token, movies }) => {
-  const [user, setUser] = useState(null);
+export const ProfileView = ({ username, token, movies, setUser }) => {
+  const [user, setLocalUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ export const ProfileView = ({ username, token, movies }) => {
           throw new Error('Network response was not ok');
         }
         const userData = await response.json();
-        setUser(userData);
+        setLocalUser(userData);
         setFormData({
           username: userData.Username,
           password: '',
@@ -54,11 +55,13 @@ export const ProfileView = ({ username, token, movies }) => {
       if (!response.ok) {
         throw new Error('Failed to update favorite movies');
       }
-      // Update local user state
       const updatedFavorites = isFavorite
         ? user.FavoriteMovies.filter(id => id !== movieId)
         : [...user.FavoriteMovies, movieId];
-      setUser({ ...user, FavoriteMovies: updatedFavorites });
+      const updatedUser = { ...user, FavoriteMovies: updatedFavorites };
+      setLocalUser(updatedUser);
+      setUser(updatedUser); // Update global user state
+      localStorage.setItem("user", JSON.stringify(updatedUser)); // Ensure localStorage is updated as well
     } catch (error) {
       setError(error);
     }
@@ -80,30 +83,42 @@ export const ProfileView = ({ username, token, movies }) => {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          Username: formData.username,
+          Password: formData.password,
+          Email: formData.email,
+          Birthday: formData.dob
+        })
       });
+
       if (!response.ok) {
-        throw new Error('Failed to update user');
+        throw new Error('Failed to update profile');
       }
+
       const updatedUser = await response.json();
-      setUser(updatedUser);
-      alert('User information updated successfully!');
+      setLocalUser(updatedUser);
+      setUser(updatedUser); // Update global user state
+      localStorage.setItem("user", JSON.stringify(updatedUser)); // Ensure localStorage is updated as well
+      navigate('/profile'); // Navigate to the profile view
     } catch (error) {
       setError(error);
     }
   };
 
-  const handleDeregister = async () => {
+  const handleDelete = async () => {
     try {
       const response = await fetch(`https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${username}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
+
       if (!response.ok) {
-        throw new Error('Failed to deregister user');
+        throw new Error('Failed to delete profile');
       }
-      alert('User deregistered successfully');
-      navigate('/login'); // Redirect to login or home page after deregistration
+
+      localStorage.clear();
+      setUser(null);
+      navigate('/');
     } catch (error) {
       setError(error);
     }
@@ -117,40 +132,55 @@ export const ProfileView = ({ username, token, movies }) => {
     return <div>Error: {error.message}</div>;
   }
 
-  if (!user) {
-    return <div>No user data available</div>;
-  }
-
-  const favoriteMovies = movies.filter(m => user.FavoriteMovies.includes(m._id));
-
   return (
-    <div className="profile-view">
-      <h1>Profile</h1>
+    <div>
+      <h2>Profile</h2>
       <form onSubmit={handleUpdate}>
-        <div>
-          <label>Username:</label>
+        <label>
+          Username:
           <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Password:</label>
+        </label>
+        <br />
+        <label>
+          Password:
           <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Email:</label>
+        </label>
+        <br />
+        <label>
+          Email:
           <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Date of Birth:</label>
+        </label>
+        <br />
+        <label>
+          Date of Birth:
           <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
-        </div>
+        </label>
+        <br />
         <button type="submit">Update</button>
       </form>
-      <button onClick={handleDeregister}>Deregister</button>
-      <h2>Favorite Movies</h2>
-      <div className="favorite-movies">
-        {favoriteMovies.map(movie => (
-          <MovieCard key={movie._id} movie={movie} onToggleFavorite={handleToggleFavorite} />
-        ))}
+      <button onClick={handleDelete}>Delete Profile</button>
+
+      <h3>Favorite Movies</h3>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {user.FavoriteMovies.length === 0 ? (
+          <div>No favorite movies</div>
+        ) : (
+          user.FavoriteMovies.map((movieId) => {
+            const movie = movies.find((m) => m.id === movieId);
+            if (movie) {
+              return (
+                <div key={movie.id} style={{ margin: '10px' }}>
+                  <MovieCard
+                    movie={movie}
+                    onToggleFavorite={handleToggleFavorite}
+                    isFavorite={user.FavoriteMovies.includes(movie.id)}
+                  />
+                </div>
+              );
+            }
+            return null;
+          })
+        )}
       </div>
     </div>
   );

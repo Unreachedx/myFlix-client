@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-
- export const MovieCard = ({ movie, onToggleFavorite, isFavorite }) => {
+export const MovieCard = ({ movie, onToggleFavorite, isFavorite }) => {
   const defaultImage = "https://via.placeholder.com/200"; // Use a placeholder image
   const directorName = movie.director && movie.director.name ? movie.director.name : "Unknown Director";
   const [favorite, setFavorite] = useState(isFavorite); // Initialize favorite state with isFavorite prop
+
+  // Sync local favorite state with isFavorite prop
+  useEffect(() => {
+    setFavorite(isFavorite);
+  }, [isFavorite]);
 
   const handleToggleFavorite = () => {
     setFavorite(!favorite); // Toggle the favorite state locally
@@ -58,4 +62,4 @@ MovieCard.propTypes = {
   isFavorite: PropTypes.bool.isRequired // Add isFavorite prop validation
 };
 
-export default MovieCard
+export default MovieCard;

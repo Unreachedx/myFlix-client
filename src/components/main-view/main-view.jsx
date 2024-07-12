@@ -6,14 +6,14 @@ import { SignupView } from "../signup-view/signup-view";
 import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
 import { Container, Row, Col } from "react-bootstrap";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
-import { ProfileView } from "../Profile-view/profile-view";
+import { ProfileView } from "../profile-view/profile-view";
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState(null);
   const authToken = localStorage.getItem("token");
   const [token, setToken] = useState(authToken || null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
 
   useEffect(() => {
     if (!token) return;
@@ -77,7 +77,9 @@ export const MainView = () => {
       const updatedFavorites = isFavorite
         ? user.FavoriteMovies.filter(id => id !== movieId)
         : [...user.FavoriteMovies, movieId];
-      setUser({ ...user, FavoriteMovies: updatedFavorites });
+      const updatedUser = { ...user, FavoriteMovies: updatedFavorites };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (error) {
       setError(error);
     }
@@ -91,9 +93,10 @@ export const MainView = () => {
 
   const handleLoggedIn = (user, token) => {
     setUser(user);
-    localStorage.setItem("token", token);
     setToken(token);
-  };
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user))
+  }
 
   if (!token) {
     return (
@@ -160,7 +163,7 @@ export const MainView = () => {
               path="/profile"
               element={
                 user ? (
-                  <ProfileView username={user.Username} token={token} movies={movies} />
+                  <ProfileView username={user.Username} token={token} movies={movies} setUser={setUser} />
                 ) : (
                   <Navigate to="/login" replace />
                 )
