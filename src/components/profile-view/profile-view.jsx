@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MovieCard } from './../movie-card/movie-card';
+import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 
 export const ProfileView = ({ username, token, movies, setUser }) => {
   const [user, setLocalUser] = useState(null);
@@ -133,55 +134,82 @@ export const ProfileView = ({ username, token, movies, setUser }) => {
   }
 
   return (
-    <div>
-      <h2>Profile</h2>
-      <form onSubmit={handleUpdate}>
-        <label>
-          Username:
-          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Date of Birth:
-          <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
-        </label>
-        <br />
-        <button type="submit">Update</button>
-      </form>
-      <button onClick={handleDelete}>Delete Profile</button>
+    <Container>
+      <h2>Account Information</h2>
+      <Form onSubmit={handleUpdate}>
+        <Form.Group controlId="formUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group controlId="formEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group controlId="formDob">
+          <Form.Label>Date of Birth</Form.Label>
+          <Form.Control
+            type="date"
+            name="dob"
+            value={formData.dob}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit" className="mt-3">Update</Button>
+      </Form>
+      <Button variant="danger" onClick={handleDelete} className="mt-3">Delete Profile</Button>
 
       <h3>Favorite Movies</h3>
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <Row>
         {user.FavoriteMovies.length === 0 ? (
-          <div>No favorite movies</div>
+          <Col>No favorite movies</Col>
         ) : (
           user.FavoriteMovies.map((movieId) => {
             const movie = movies.find((m) => m.id === movieId);
             if (movie) {
               return (
-                <div key={movie.id} style={{ margin: '10px' }}>
-                  <MovieCard
-                    movie={movie}
-                    onToggleFavorite={handleToggleFavorite}
-                    isFavorite={user.FavoriteMovies.includes(movie.id)}
-                  />
-                </div>
+                <Col key={movie.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
+                  <Card style={{ height: '100%' }}>
+                    <Card.Body>
+                      <MovieCard
+                        movie={movie}
+                        onToggleFavorite={handleToggleFavorite}
+                        isFavorite={user.FavoriteMovies.includes(movie.id)}
+                      />
+                    </Card.Body>
+                  </Card>
+                </Col>
               );
             }
             return null;
           })
         )}
-      </div>
-    </div>
+      </Row>
+    </Container>
   );
 };
