@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { MovieCard } from "../movie-card/movie-card";
-import { MovieView } from "../movie-view/movie-view";
-import { LoginView } from "../login-view/login-view";
-import { SignupView } from "../signup-view/signup-view";
-import { Container, Row, Col, Button } from "react-bootstrap";
-
+import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
+import { Container, Row, Col, Form } from "react-bootstrap";
+import { Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
+import { ProfileView } from "../profile-view/profile-view";
+import "../../index.scss"; // Import index.scss for global styling
 
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [filteredMovies, setFilteredMovies] = useState([]);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const authToken = localStorage.getItem("token");
   const [token, setToken] = useState(authToken || null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation(); // useLocation() hook
 
   useEffect(() => {
     if (!token) return;
 
     const fetchMovies = async () => {
       try {
-        const response = await fetch("https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await fetch(
+          "https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/movies",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            setToken(null);
+            setUser(null);
+          }
           throw new Error("Network response was not ok " + response.statusText);
         }
 
@@ -39,6 +49,7 @@ export const MainView = () => {
             release_year: movie.release_year,
           }));
           setMovies(moviesFromApi);
+          setFilteredMovies(moviesFromApi); // Initialize filteredMovies with all movies
         } else {
           throw new Error("Invalid data structure");
         }
@@ -51,62 +62,161 @@ export const MainView = () => {
     fetchMovies();
   }, [token]);
 
+  useEffect(() => {
+    // Filter movies based on searchQuery
+    if (searchQuery.trim() === "") {
+      setFilteredMovies(movies); // Reset to all movies if search query is empty
+    } else {
+      const lowercaseQuery = searchQuery.toLowerCase();
+      const filtered = movies.filter((movie) => {
+        // Ensure movie.title, and movie.genre are strings
+        const titleMatch = movie.title.toLowerCase().includes(lowercaseQuery);
+        const genreMatch =
+          typeof movie.genre === "string" && movie.genre.toLowerCase().includes(lowercaseQuery);
+        return titleMatch || genreMatch;
+      });
+      setFilteredMovies(filtered);
+    }
+  }, [searchQuery, movies]);
+
+  const handleToggleFavorite = async (movieId, isFavorite) => {
+    try {
+      const method = isFavorite ? "POST" : "DELETE";
+      const response = await fetch(
+        `https://myflixapplication-paddy-fac687c8aed3.herokuapp.com/users/${user.Username}/favorites/${movieId}`,
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update favorite movies");
+      }
+      const updatedFavorites = isFavorite
+        ? [...user.FavoriteMovies, movieId]
+        : user.FavoriteMovies.filter((id) => id !== movieId);
+      const updatedUser = { ...user, FavoriteMovies: updatedFavorites };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (error) {
+      setError(error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
 
-  if (!token) {
-    return (
-      <>
-        <LoginView
-          onLoggedIn={(user, token) => {
-            setUser(user);
-            localStorage.setItem("token", token);
-            setToken(token);
-          }}
-        />
-        <SignupView />
-      </>
-    );
-  }
+  const handleLoggedIn = (user, token) => {
+    setUser(user);
+    setToken(token);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
 
-  console.log("Rendering MainView with movies:", movies);
-  console.log("Selected movie:", selectedMovie);
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  if (selectedMovie) {
-    return (
-      <MovieView movie={selectedMovie} onBackClick={() => setSelectedMovie(null)} />
-    );
-  }
-
-  if (movies.length === 0) {
-    return <div>The list is empty!</div>;
-  }
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   return (
-    <Container>
-      <Row>
-        {movies.map((movie) => (
-          <Col xs={12} sm={6} md={4} lg={3} key={movie.id}>
-            <MovieCard
-              movie={movie}
-              onMovieClick={(newSelectedMovie) => {
-                console.log("Movie clicked:", newSelectedMovie);
-                setSelectedMovie(newSelectedMovie);
-              }}
-            />
-          </Col>
-        ))}
-      <div className="d-flex justify-content-center mt-3">
-        <Button className="w-auto" onClick={handleLogout}>Logout</Button>
-      </div>
-      </Row>
-    </Container>
+    <>
+      {!token ? (
+        <Container>
+          <Row className="justify-content-md-center">
+            <Routes>
+              <Route
+                path="/login"
+                element={<Col md={5}><LoginView onLoggedIn={handleLoggedIn} /></Col>}
+              />
+              <Route path="/signup" element={<Col md={5}><SignupView /></Col>} />
+              <Route path="*" element={<Navigate to="/login" />} />
+            </Routes>
+          </Row>
+        </Container>
+      ) : (
+        <>
+          <NavigationBar user={user} onLoggedOut={handleLogout} />
+          <Container>
+            <Row className="justify-content-md-center">
+              <Form className={`mb-3 ${location.pathname === "/profile" ? "hide-search" : ""}`}>
+                <Form.Group controlId="searchQuery">
+                  <Form.Control
+                    type="text"
+                    placeholder="Search by title or genre"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                </Form.Group>
+              </Form>
+              <Routes>
+                <Route
+                  path="/movie/:movieId"
+                  element={<MovieDetailsWrapper movies={filteredMovies} user={user} />}
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    user ? (
+                      <ProfileView
+                        username={user.Username}
+                        token={token}
+                        movies={filteredMovies}
+                        setUser={setUser}
+                        onToggleFavorite={handleToggleFavorite} // Pass onToggleFavorite to ProfileView
+                      />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      {!user ? (
+                        <Navigate to="/login" replace />
+                      ) : (
+                        <Row>
+                          {filteredMovies.map((movie) => (
+                            <Col className="mb-4" key={movie.id} md={3}>
+                              <MovieCard
+                                movie={movie}
+                                onToggleFavorite={handleToggleFavorite}
+                                isFavorite={user.FavoriteMovies.includes(movie.id)}
+                              />
+                            </Col>
+                          ))}
+                        </Row>
+                      )}
+                    </>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </Row>
+          </Container>
+        </>
+      )}
+    </>
   );
+};
+
+const MovieDetailsWrapper = ({ movies, user }) => {
+  const { movieId } = useParams();
+  const movie = movies.find((m) => m.id === movieId);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!movie) {
+    return <div>Movie not found!</div>;
+  }
+
+  return <MovieView movie={movie} />;
 };

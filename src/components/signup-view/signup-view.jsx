@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CardBody, Container, Row, Col, Button, Card, CardGroup, Form,} from "react-bootstrap";
+import { Container, Row, Col, Button, Card, CardGroup, Form } from "react-bootstrap";
 
 export const SignupView = () => {
   const [username, setUsername] = useState("");
@@ -34,64 +34,67 @@ export const SignupView = () => {
   };
 
   return (
-    <Container className="d-flex align-items-center justify-content-center">
-      <Row className="mt-5">
+    <Container>
+      <Row>
         <Col>
           <CardGroup>
             <Card>
-              <CardBody>
-              <Card.Title className="d-flex align-items-center justify-content-center">Please Register</Card.Title>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formUsername">
-                  <Form.Label>Username:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    minLength="3"
-                    placeholder="Enter a Username"
-                  />
-                </Form.Group>
-                <Form.Group controlId="formPassword">
-                  <Form.Label>Password:</Form.Label>
-                  <Form.Control
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength="8"
-                    placeholder="Your Password has to be min. 8 Didgets"
-                  />
-                </Form.Group>
-                <Form.Group controlId="formEmail">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    placeholder="Enter your Email"
-                  />
-                </Form.Group>
-                <Form.Group controlId="Birthday">
-                  <Form.Label>Birthday</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Button variant="primary" type="submit" className="mt-2">
-                  Submit
-                </Button>
-              </Form>
-              </CardBody>
+              <Card.Body>
+                <Card.Title>Please Register</Card.Title>
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group controlId="formUsername">
+                    <Form.Label>Username:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      minLength="3"
+                      placeholder="Enter a Username"
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="formPassword">
+                    <Form.Label>Password:</Form.Label>
+                    <Form.Control
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength="8"
+                      placeholder="Your Password has to be min. 8 Didgets"
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="formEmail">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Enter your Email"
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="Birthday">
+                    <Form.Label>Birthday</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={birthday}
+                      onChange={(e) => setBirthday(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                  <Button variant="primary" type="submit">
+                    Submit
+                  </Button>
+                </Form>
+              </Card.Body>
             </Card>
           </CardGroup>
         </Col>
       </Row>
+      <div className="links">
+        <a href="/login">Already have an account?</a>
+      </div>
     </Container>
   );
 };
