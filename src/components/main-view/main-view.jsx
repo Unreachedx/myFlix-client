@@ -4,6 +4,8 @@ import { NavigationBar } from "../navigation-bar.jsx/navigation-bar";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import { Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import { ProfileView } from "../profile-view/profile-view";
+import { LoginView } from "../login-view/login-view";
+import { SignupView } from "../signup-view/signup-view";
 import "../../index.scss"; // Import index.scss for global styling
 
 export const MainView = () => {
