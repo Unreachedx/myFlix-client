@@ -24,10 +24,7 @@ export const MovieCard = ({ movie, onToggleFavorite, isFavorite }) => {
   return (
     <div className="movie-card">
       <Link
-        to="#"
-        onClick={(e) => {
-          e.preventDefault(); // Prevent the default link behavior
-        }}
+        to={`/movie/${movie.id}`} // Navigate to movie details page
         style={{
           position: "relative",
           display: "block",
@@ -60,7 +57,10 @@ export const MovieCard = ({ movie, onToggleFavorite, isFavorite }) => {
             border: "none",
             cursor: "pointer",
           }}
-          onClick={handleToggleFavorite}
+          onClick={(e) => {
+            e.preventDefault(); // Prevent link navigation when clicking the favorite button
+            handleToggleFavorite();
+          }}
         >
           <FontAwesomeIcon
             icon={faHeart}

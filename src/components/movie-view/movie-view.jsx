@@ -11,7 +11,6 @@ export const MovieView = ({ movie }) => {
     return <div>Loading...</div>;
   }
 
-
   // Determine the image source
   const imageUrl = movie.imagePath || placeholderImage;
 
@@ -28,12 +27,16 @@ export const MovieView = ({ movie }) => {
         />
       </div>
       <div>
-        <span>Title: </span>
+        <span style={{ fontWeight: 'bold' }}>Title:</span>
         <span>{movie.title}</span>
       </div>
       <div>
-        <span>Director: </span>
+        <span style={{ fontWeight: 'bold' }}>Director:</span>
         <span>{movie.director.name}</span>
+      </div>
+      <div>
+        <span style={{ fontWeight: 'bold' }}>Description:</span>
+        <span>{movie.description}</span>
       </div>
       <Link to={`/`}>
         <button className="back-button">Back</button>

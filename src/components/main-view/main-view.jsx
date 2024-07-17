@@ -6,6 +6,7 @@ import { Routes, Route, Navigate, useParams, useLocation } from "react-router-do
 import { ProfileView } from "../profile-view/profile-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { MovieView } from "../movie-view/movie-view"; // Ensure you import MovieView
 import "../../index.scss"; // Import index.scss for global styling
 
 export const MainView = () => {
@@ -49,6 +50,7 @@ export const MainView = () => {
             director: movie.director,
             genre: movie.genre,
             release_year: movie.release_year,
+            description: movie.description // Ensure description is included
           }));
           setMovies(moviesFromApi);
           setFilteredMovies(moviesFromApi); // Initialize filteredMovies with all movies
